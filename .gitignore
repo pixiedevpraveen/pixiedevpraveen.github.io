@@ -1,0 +1,10 @@
+src/
+test/
+
+!static/img/
+
+static/css/*
+!static/css/*.min.css
+
+static/js/*
+!static/js/*.min.*

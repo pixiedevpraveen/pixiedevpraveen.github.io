@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Pixiedevs</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="keywords" content="">
+        <meta name="robots" content="index, follow">
+        <meta name="language" content="English">
+        <meta name="revisit-after" content="2 days">
+        <meta name="author" content="Praveen Yadav">
+
+        <link rel="stylesheet" href="/static/css/mini.min.css">
+        <link rel="stylesheet" href="/static/css/style.min.css">
+        <script src="/static/js/petite.min.js"></script>
+        <script type="module" src="/static/js/index.min.js"></script>
+        <script defer src="/static/js/vr.min.js"></script>
+        <script defer src="/static/js/axios.min.js"></script>
+    </head>
+
+    <body>
+
+        <body>
+
+            <div id="prApp" :class="{offline: !store.state.online}">
+                <div id="main-loading" :class="{show: store.methods.app.loading}"></div>
+
+                <nav class="navbar">
+                    <div class="container-fluid navbar-body">
+                        <div class="navbar-brand"><a href="/" class="router-link"><img
+                                    src="/static/img/praveen-nav-brand.png" alt="Praveen Yadav"></a></div>
+                        <div class="navbar-collapse">
+                            <ul class="navbar-nav text-center">
+                                <li class="nav-item active">
+                                    <a href="/" class="nav-link router-link">Home</a>
+                                </li>
+                                <li class="nav-item"><a href="/blog/" class="nav-link router-link">Blog</a>
+                                </li>
+                                <li class="nav-item"><a href="/about/" class="nav-link router-link">About</a>
+                                </li>
+                                <li class="nav-item"><a class="nav-link">Contact</a></li>
+                                <li class="nav-item"><a @click="store.methods.toggleNavbar" id="navbar-toggle-more"
+                                        class="nav-link">More</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <button @click="store.methods.toggleNavbar" class="navbar-toggler ms-auto"
+                            title="toggle navbar"><span class="icon-settings"></span></button>
+                    </div>
+                </nav>
+
+                <div id="inBody" class="d-flex justify-content-center flex-wrap">
+
+                    <main id="main" v-if="!store.state.render">
+                    </main>
+                    <div class="d-flex justify-content-between toast main-toast bg-gr-primary"
+                        :class="{'hidden':!store.state.app.message.show}">
+                        <span v-html="store.state.app.message.desc"></span>
+                        <span class="icn" @click="store.setter().toggleMsg(false)">X</span>
+                    </div>
+
+
+                    <aside id="aside">
+                        <div class="container mt-3">
+                            <h6>Search Posts</h6>
+                            <form class="d-flex input-group w-auto"
+                                @submit.prevent="store.method().app.sidebar.search.get()">
+                                <input type="search" v-model="store.state.app.sidebar.search.query"
+                                    class="form-control search-bar outline-0" placeholder="Type query"
+                                    aria-label="Search">
+                                <button type="submit" role="button"
+                                    class="btn btn-outline-primary search-btn ripple-surface"> Search
+                                </button>
+                            </form>
+                            <input type="hidden" id="saveState" @click="store.saveState">
+                            <input type="hidden" id="syncState" @click="store.syncState">
+                            <input type="hidden" id="startLoading" @click="store.method().app.startLoading">
+                            <input type="hidden" id="stopLoading" @click="store.method().app.stopLoading">
+                            <input type="hidden" id="updateHistory" @click="store.methods.updateHistory">
+                            <div v-if="store.state.app.sidebar.search.show" class="searched-posts mt-2 p-3">
+                                <ol>
+                                    <li v-for="f in store.state.app.sidebar.search.data.result">
+                                        <a :href="f.url" class="router-link" v-html="f.title"></a>
+                                        <br />
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="container aside-div mt-3">
+                            <!-- Tabs navs -->
+                            <ul class="nav nav-tabs nav-justified mb-3 bg-gr-purple" id="ex1" role="tablist">
+                                <li class="nav-item" role="presentation"
+                                    @click="store.state.app.sidebar.activeTabId = 1; store.method().app.sidebar.recent.get()">
+                                    <a class="nav-link"
+                                        :class="store.state.app.sidebar.activeTabId == 1 ? 'active' : ''" id="ex2-tab-1"
+                                        data-mdb-toggle="tab" role="tab" aria-controls="ex2-tabs-1"
+                                        :aria-selected="store.state.app.sidebar.activeTabId == 1 ? 'true' : 'false'">Recent</a>
+                                </li>
+                                <li class="nav-item" role="presentation"
+                                    @click="store.state.app.sidebar.activeTabId = 2; store.method().app.sidebar.popular.get()">
+                                    <a class="nav-link"
+                                        :class="store.state.app.sidebar.activeTabId == 2 ? 'active' : ''" id="ex2-tab-2"
+                                        data-mdb-toggle="tab" role="tab" aria-controls="ex2-tabs-2"
+                                        :aria-selected="store.state.app.sidebar.activeTabId == 2 ? 'true' : 'false'">Popular</a>
+                                </li>
+                                <li class="nav-item" role="presentation" @mounted="store.methods.updateHistory"
+                                    @click="store.state.app.sidebar.activeTabId = 3; store.methods.updateHistory">
+                                    <a class="nav-link tooltip bottom" aria-label="Blog history read by you"
+                                        id="ex2-tab-3" :class="store.state.app.sidebar.activeTabId == 3 ? 'active' : ''"
+                                        data-mdb-toggle="tab" role="tab" aria-controls="ex2-tabs-3"
+                                        :aria-selected="store.state.app.sidebar.activeTabId == 3 ? 'true' : 'false'">History</a>
+                                </li>
+                            </ul>
+                            <!-- Tabs navs -->
+
+                            <!-- Tabs content -->
+                            <div class="tab-content" id="ex2-content">
+                                <div :class="store.state.app.sidebar.activeTabId == 1 ? 'show' : ''"
+                                    class="tab-pane fade" id="ex2-tabs-1" role="tabpanel" aria-labelledby="ex2-tab-1">
+                                    <div class="searched-posts mt-2 p-3">
+                                        <ol>
+                                            <li v-for="f in store.state.app.sidebar.recent.data">
+                                                <a :href="f.url" class="router-link" v-html="f.title"></a>
+                                                <br />
+                                            </li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                <div :class="store.state.app.sidebar.activeTabId == 2 ? 'show' : ''"
+                                    class="tab-pane fade" id="ex2-tabs-2" role="tabpanel" aria-labelledby="ex2-tab-2">
+                                    <div class="searched-posts mt-2 p-3">
+                                        <ol>
+                                            <li v-for="f in store.state.app.sidebar.popular.data">
+                                                <a :href="f.url" class="router-link" v-html="f.title"></a>
+                                                <br />
+                                            </li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade"
+                                    :class="store.state.app.sidebar.activeTabId == 3 ? 'show' : ''" id="ex2-tabs-3"
+                                    role="tabpanel" aria-labelledby="ex2-tab-3">
+                                    <div class="searched-posts mt-2 p-3">
+                                        <ol>
+                                            <li v-for="f in store.getter.history.data" :key="f.id">
+                                                <a :href="f.url" class="router-link" v-html="f.title"></a>
+                                            </li>
+                                        </ol>
+                                        <!-- <div v-else><b>Click any above menu option to see posts</b> -->
+                                        <!-- </div> -->
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Tabs content -->
+                        </div>
+                        <hr>
+                        <div class="container mt-2">
+                            <div class="container py-4" id="contact">
+                                <div class="text-center">
+                                    <h3><b>Contact me</b></h3>
+                                </div>
+                                <form method="POST" id="contact_us"
+                                    @submit.prevent="store.methods.app.contact.sendContact">
+                                    <div class="input-group">
+                                        <label for="name">Name *</label>
+                                        <input type="text" class="form-control" id="name"
+                                            v-model="store.methods.app.contact.name" placeholder="Your Full Name" />
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="email">email *</label>
+                                        <input type="email" class="form-control" id="email"
+                                            v-model="store.methods.app.contact.email" placeholder="Your email" />
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="phone">Mobile</label>
+                                        <input type="phone" class="form-control" id="phone"
+                                            v-model="store.methods.app.contact.phone" placeholder="Your Phone No." />
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="desc">Message *</label>
+                                        <textarea class="form-control" id="desc"
+                                            v-model="store.methods.app.contact.desc" rows="3"></textarea>
+                                    </div>
+
+                                    <div class="input-group">
+                                        <button type="submit" class="btn btn-primary m-2 ripple-surface">
+                                            Submit
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <hr>
+                    </aside>
+                </div>
+
+                <footer class="text-center text-lg-start bg-light text-muted">
+                    <div class="text-center p-4"> <small>© 2021 Copyright:</small>
+                        <a class="text-reset fw-bold home-link" href="">Home</a>
+                    </div>
+                </footer>
+            </div>
+
+        </body>
+        <!-- blocks/bottom-links.html -->
+
+    </body>
+
+</html>
